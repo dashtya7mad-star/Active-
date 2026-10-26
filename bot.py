@@ -1,51 +1,34 @@
-
 import os
+import time
 import requests
-from datetime import datetime, timezone
 
-# Read GitHub Actions Secrets
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-CHAT_ID = os.environ.get("CHAT_ID")
+BOT_TOKEN = (os.environ.get("BOT_TOKEN") or "").strip()
+CHAT_ID = (os.environ.get("CHAT_ID") or "").strip()
 
-# Check configuration
-if not BOT_TOKEN:
-    raise ValueError("BOT_TOKEN is missing from GitHub Secrets")
-
-if not CHAT_ID:
-    raise ValueError("CHAT_ID is missing from GitHub Secrets")
+if not BOT_TOKEN or not CHAT_ID:
+    raise ValueError("BOT_TOKEN or CHAT_ID is missing from GitHub Secrets")
 
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-
-def send_message(message):
+while True:
     try:
         response = requests.post(
             API_URL,
             json={
                 "chat_id": CHAT_ID,
-                "text": message
+                "text": "/start"
             },
             timeout=30
         )
 
-        response.raise_for_status()
         result = response.json()
 
-        if not result.get("ok"):
+        if response.ok and result.get("ok"):
+            print("Message sent successfully.")
+        else:
             print("Telegram error:", result)
-            return False
-
-        print("Message sent successfully.")
-        return True
 
     except requests.RequestException as error:
-        print(f"Failed to send message: {error}")
-        return False
+        print("Connection error:", error)
 
-
-if __name__ == "__main__":
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    message = f"/start"
-
-    if not send_message(message):
-        raise SystemExit(1)
+    time.sleep(10)
