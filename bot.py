@@ -45,7 +45,7 @@ def send_message(message):
 
 if __name__ == "__main__":
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    message = f"🤖 البوت يعمل بنجاح!\nوقت التشغيل: {now}"
+    message = f"/start"
 
     if not send_message(message):
         raise SystemExit(1)
