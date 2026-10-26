@@ -1,38 +1,51 @@
 
 import os
-import time
-import json
-import urllib.request
-import urllib.parse
-import urllib.error
+import requests
+from datetime import datetime, timezone
 
-TOKEN = os.environ.get("BOT_TOKEN")
-CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+# Read GitHub Actions Secrets
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+CHAT_ID = os.environ.get("CHAT_ID")
+
+# Check configuration
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN is missing from GitHub Secrets")
+
+if not CHAT_ID:
+    raise ValueError("CHAT_ID is missing from GitHub Secrets")
 
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-while True:
-    data = urllib.parse.urlencode({
-        "chat_id": CHAT_ID,
-        "text": "/start"
-    }).encode("utf-8")
 
-    request = urllib.request.Request(
-        API_URL,
-        data=data,
-        method="POST"
-    )
-
+def send_message(message):
     try:
-        with urllib.request.urlopen(request, timeout=20) as response:
-            result = json.loads(response.read().decode("utf-8"))
+        response = requests.post(
+            API_URL,
+            json={
+                "chat_id": CHAT_ID,
+                "text": message
+            },
+            timeout=30
+        )
 
-            if result.get("ok"):
-                print("Message sent successfully")
-            else:
-                print("Telegram API error:", result)
+        response.raise_for_status()
+        result = response.json()
 
-    except Exception as error:
-        print("Error:", error)
+        if not result.get("ok"):
+            print("Telegram error:", result)
+            return False
 
-    time.sleep(30)
+        print("Message sent successfully.")
+        return True
+
+    except requests.RequestException as error:
+        print(f"Failed to send message: {error}")
+        return False
+
+
+if __name__ == "__main__":
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    message = f"🤖 البوت يعمل بنجاح!\nوقت التشغيل: {now}"
+
+    if not send_message(message):
+        raise SystemExit(1)
