@@ -31,4 +31,4 @@ while True:
     except requests.RequestException as error:
         print("Connection error:", error)
 
-    time.sleep(10)
+    time.sleep(180)
