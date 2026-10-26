@@ -1,24 +1,37 @@
+
 import os
 import time
+import json
 import urllib.request
 import urllib.parse
-import json
+import urllib.error
 
-BOT_TOKEN = os.environ["8687344185:AAF7Ab-oMkQlXBZQvxg-n_YIvy4-mqS5DJM"]
-CHAT_ID = os.environ["5015426926"]
+BOT_TOKEN = os.environ["BOT_TOKEN"]
+CHAT_ID = os.environ["CHAT_ID"]
 
-url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
 while True:
     data = urllib.parse.urlencode({
         "chat_id": CHAT_ID,
-        "/start": "تمام ✅"
-    }).encode()
+        "text": "/start"
+    }).encode("utf-8")
+
+    request = urllib.request.Request(
+        API_URL,
+        data=data,
+        method="POST"
+    )
 
     try:
-        request = urllib.request.Request(url, data=data)
-        with urllib.request.urlopen(request, timeout=15) as response:
-            print(response.read().decode())
+        with urllib.request.urlopen(request, timeout=20) as response:
+            result = json.loads(response.read().decode("utf-8"))
+
+            if result.get("ok"):
+                print("Message sent successfully")
+            else:
+                print("Telegram API error:", result)
+
     except Exception as error:
         print("Error:", error)
 
