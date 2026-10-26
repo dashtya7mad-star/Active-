@@ -6,8 +6,8 @@ import urllib.request
 import urllib.parse
 import urllib.error
 
-BOT_TOKEN = os.environ["BOT_TOKEN"]
-CHAT_ID = os.environ["CHAT_ID"]
+BOT_TOKEN = os.environ["8687344185:AAF7Ab-oMkQlXBZQvxg-n_YIvy4-mqS5DJM"]
+CHAT_ID = os.environ["5015426926"]
 
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
